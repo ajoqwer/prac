@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.prac.gw.mapper.BoardMapper">
+
+    <select id="login" parameterType="UserVO" resultType="UserVO">
+        select * from mariadb.user where id = #{id} and pw = #{pw}
+    </select>
+
+    <insert id="signup" parameterType="UserVO">
+        insert into user (id,pw,nickname) values (#{id},#{pw},#{nickname})
+    </insert>
+
+    <select id="boardList" parameterType="BoardVO" resultType="BoardVO">
+        select * from mariadb.board
+    </select>
+
+
+    <select id="boardContent" parameterType="BoardVO" resultType="BoardVO">
+        select * from mariadb.board where idx = #{idx}
+    </select>
+
+    <insert id="commentProc" parameterType="CommentVO" >
+        insert into mariadb.comment 
+        (boardId, userId, commentContent, replyLevel, replyId)
+        values (#{boardId},#{userId},#{commentContent},#{replyLevel},#{replyId})
+        on duplicate key
+            update commentContent = #{commentContent}
+    </insert>
+
+    <select id="commentList" parameterType="CommentVO" resultType="CommentVO">
+        select *,
+        ( select nickname from mariadb.user as u where u.id = c.userId) as nickname,
+            case
+                when replyId != 0 and replyId <![CDATA[ < ]]> commentId then replyId
+                else commentId
+	        end commentorder
+        from mariadb.comment as c
+        where boardId = #{boardId}
+        order by commentorder
+    </select>
+</mapper>

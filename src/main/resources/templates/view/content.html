@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+  <div class="default">
+    <div class="content">
+      <div th:text="${content.Title}"></div>
+      <div th:text="${content.writerId}"></div>
+      <div th:text="${content.regDate}"></div>
+      <div th:text="${content.content}"></div>
+    </div>
+    <div class="reply">
+      <div id="commentArea" style="display:none;">
+        <input type="text" id="comment"></input>
+        <button onclick="insertComment()">저장</button>
+      </div>
+      
+      <div id="commentList">
+        
+      </div>
+      <button onclick="showInsert()">댓글</button>
+      
+    </div>
+  </div>
+  <input type="hidden" id="userId" th:value="${session.id}" />
+  <script th:inline="javascript">
+      let userId = $('#userId').val();
+    /* <![CDATA[ */
+      let boardId = /*[[${content.idx}]]*/ 
+      console.log();
+    /* ]] */
+      let commentListHTML;
+      let commentList;
+      let commentInfo;
+
+    getCommentList();
+   
+    function showInsert(item){
+      if(item != null || item != undefined) commentInfo = commentList[item];
+      $('#commentArea').css('display','inline-block');
+    }
+    function getCommentList(){
+      $.ajax({
+          url : '/commentList',
+          data : {
+            'boardId' : boardId
+          },
+          success : function(data) {
+            commentListHTML = '';
+            commentList = data;
+            let listSize = data.length;
+            let tempList =[];
+            let maxLevel = 0;
+            commentList.forEach(function(item,index){
+              item.sortNumber = index;
+              if(item.replyId > 0) item.sortNumber = commentList[item.replyId].sortNumber;
+              if(maxLevel < item.replyLevel) maxLevel = item.replyLevel;
+              tempList.push(item);
+            });
+            
+            tempList = tempList.sort(function(a,b) {
+              return a.sortNumber-b.sortNumber;
+            });
+
+            for(var n=1;n<=maxLevel;n++) {
+              tempList.forEach(function(item,index) {
+                if(item.replyLevel == n && item.replyId > 0 ){
+                  var tmpItem = tempList.find(function(i,idx) {
+                    if(i.commentId == item.replyId) return true;
+                  })
+                  item.sortNumber = tmpItem.sortNumber;
+                }
+              });
+              tempList = tempList.sort(function(a,b) {
+                return a.sortNumber-b.sortNumber;
+              });
+            }
+            tempList.forEach(function(item,index){
+              for(var i = 0;i <item.replyLevel+1;i++) {
+                commentListHTML += '&emsp;';
+
+              }  
+              commentListHTML += '<span>' + item.nickname + '</span>';
+              commentListHTML += '<input type="text" value="'+item.commentContent+'" readonly >';
+              commentListHTML += '<button id="'+index+'" onclick="showInsert('+index+')" >대댓글</button>';
+              commentListHTML += '</br>';
+            });
+            $('#commentList').html(commentListHTML);
+            commentList = tempList;
+          },
+          error : function(data) {
+            alert("예측하지못한 예외 발생");
+          }
+        });
+    };
+    
+
+    function insertComment(){
+      var data = {
+        'userId' : userId,
+        'boardId' : boardId,
+        'commentContent' : $('#comment').val(),
+        'replyLevel' : (commentInfo != undefined || commentInfo != null)? commentInfo.replyLevel + 1 : 0 ,
+        'replyId' : (commentInfo != undefined || commentInfo != null)? commentInfo.commentId : null ,
+      };
+      console.log(data);
+      $.ajax({
+          url : '/commentProc',
+          data : data,
+          type: 'POST',
+          success : function(data) {
+            $('#comment').val('');
+            getCommentList();
+          },
+          error : function(data) {
+            alert("예측하지못한 예외 발생");
+          }
+        });
+
+      $('#commentArea').css('display','none');
+    }
+  </script>
+</body>
+</html>
