@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>게시판</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+  <div class="default">
+    <div class="info">
+      <span th:text="${session.nickname}"></span>
+      <input type="text" th:value="${session.nickname}" readonly>
+    </div>
+    <div class="board">
+      <table id="boardlist">
+        <tr>
+          <td>글번호</td>
+          <td>제목</td>
+          <td>작성자</td>
+          <td>작성일</td>
+        </tr>
+        <tr th:each="boardList,idx:${boardList}">
+          <td th:text="${boardList.idx}"></td>
+          <td ><a th:href="@{/content(idx=${boardList.idx})}" th:text="${boardList.title}" ></a></td>
+          <td th:text="${boardList.writerId}"></td>
+          <td th:text="${boardList.regDate}"></td>
+        </tr>
+        
+      </table>
+      <div style="display:inline-block">
+        <button onclick="">글 쓰기</button> 
+      </div>
+    </div>
+  </div>
+
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    var boardList = /*[[${boardList}]]*/
+     /*]]*/
+     console.log(boardList);
+    //  let boardlisthtml = '<tr>';
+    //  boardlisthtml += '<td>번호</td>';
+    //  boardlisthtml += '<td>제목</td>';
+    //  boardlisthtml += '<td>작성자</td>';
+    //  boardlisthtml += '<td>게시일</td>';
+    //  boardlisthtml += '</tr>';
+    //  boardList.forEach(function(v,i) {
+    //   boardlisthtml += '<tr>';
+    //   boardlisthtml += '<td>'+v.idx+'</td>';
+    //   boardlisthtml += '<td>'+v.title+'</td>';
+    //   boardlisthtml += '<td>'+v.writerId+'</td>';
+    //   boardlisthtml += '<td>'+v.regDate+'</td>';
+    //   boardlisthtml += '</tr>';
+    //  })
+  </script>
+</body>
+</html>

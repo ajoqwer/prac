@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "scripts": {
+    "start": "npm run compile",
+    "compile": "babel src -d dist"
+  },
+  "dependencies": {
+    "bootstrap": "^5.1.3"
+  }
+}

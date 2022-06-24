@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+  
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>USER</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+</head>
+<body>
+  <div class="default">
+    <span id="sign_in" style="border:1px solid black;">로그인</span> &emsp;
+    <span id="sign_up">회원가입</span> </br>
+    <div class="sign_in" style="display:inline-block">
+      <input type="text" id="id" placeholder="아이디"/>
+      <input type="password" id="pw" placeholder="비밀번호"/>
+      <input type="button" id="login" value="로그인"/>
+    </div>
+    <div class="sign_up" style="display:none">
+      <input type="text" id="reg_id" placeholder="아이디"/>
+      <input type="password" id="reg_pw" placeholder="비밀번호"/>
+      <input type="text" id="reg_nickname" placeholder="별명"/>
+      <input type="button"  id="regist" value="회원가입"/>
+    </div>    
+  </div>
+
+  <script type="text/javascript">
+      $('#sign_in').on("click",function(e){
+        $('.sign_in').css('display','inline-block');
+        $('#sign_in').css('border','1px solid black');
+        $('.sign_up').css('display','none');
+        $('#sign_up').css('border','');
+      });
+      $('#sign_up').on("click",function(e){
+        $('.sign_in').css('display','none');
+        $('#sign_in').css('border','');
+        $('.sign_up').css('display','inline-block');
+        $('#sign_up').css('border','1px solid black');
+      });
+
+      $('#login').on("click",function(e){
+        var data = {
+          id : $('#id').val(),
+          pw : $('#pw').val()
+        };
+        console.log(data);
+        $.ajax({
+          url : '/loginProc',
+          data : data,
+          success : function(data) {
+            if(data.result == "1") {
+              location.href = "/board";
+            } else if(data.result == "0") {
+              alert("가입한 회원정보를 다시 확인해 주세요.");
+            } else {
+              alert("DB 오류 회원정보 조회 실패");
+            }
+          },
+          error : function(data) {
+            alert("예측하지못한 예외 발생");
+          }
+        });
+      });
+
+      $('#regist').on("click",function(e){
+        var data = {
+          id : $('#reg_id').val(),
+          pw : $('#reg_pw').val(),
+          nickname : $('#reg_nickname').val()
+        };
+        console.log(data);
+        $.ajax({
+          url : '/signup',
+          data : data,
+          success : function(data) {
+            if(data == "1") {
+              alert("회원가입 성공");
+              $('#sign_in').trigger("click");
+            } else {
+              alert("DB오류 회원가입 실패");
+            }
+          },
+          error : function(data) {
+            alert("예측하지못한 예외 발생");
+          }
+        });
+      });
+
+  </script>
+</body>
+</html>
